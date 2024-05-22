@@ -7,8 +7,11 @@ environment:
   sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
+  esp_smartconfig: ^2.0.4
   flutter:
     sdk: flutter
+  http: ^1.2.1
+  wifi_iot: ^0.3.19
 
 dev_dependencies:
   flutter_test:
