@@ -1,0 +1,160 @@
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:car_app/Views/car_control_page.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+
+class WiFiScreen extends StatefulWidget {
+  const WiFiScreen({super.key});
+
+  @override
+  createState() => _WiFiScreenState();
+}
+
+class _WiFiScreenState extends State<WiFiScreen> {
+  final TextEditingController ssidController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  String esp32Ip = "192.168.4.1"; // IP por defecto del ESP32
+  bool _passwordVisible = false;
+
+  final List<String> imagePaths = [
+    'assets/foto1.webp',
+    'assets/foto2.webp',
+    // Agrega más rutas de imágenes aquí
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          CarouselSlider(
+            items: imagePaths.map((path) {
+              return Image.asset(
+                path,
+                fit: BoxFit.cover,
+                width: double.infinity,
+              );
+            }).toList(),
+            options: CarouselOptions(
+              height: double.infinity,
+              viewportFraction: 1.0,
+              enlargeCenterPage: false,
+              autoPlay: true,
+            ),
+          ),
+          Container(
+            color: Colors.black.withOpacity(0.6), // Fondo oscuro con opacidad
+            width: double.infinity,
+            height: double.infinity,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.wifi,
+                      size: 120,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(height: 30),
+                    const Text(
+                      'Configuración de WiFi',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const TextField(
+                      decoration: InputDecoration(
+                        labelText: 'Nombre de la red (SSID)',
+                        prefixIcon:
+                            Icon(Icons.network_wifi, color: Colors.white),
+                        labelStyle: TextStyle(color: Colors.white),
+                      ),
+                      obscureText: false,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      decoration: InputDecoration(
+                        labelText: 'Contraseña',
+                        prefixIcon: const Icon(Icons.lock, color: Colors.white),
+                        labelStyle: const TextStyle(color: Colors.white),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _passwordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            semanticLabel: _passwordVisible
+                                ? 'ocultar contraseña'
+                                : 'mostrar contraseña',
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _passwordVisible = !_passwordVisible;
+                            });
+                          },
+                        ),
+                      ),
+                      obscureText: !_passwordVisible, // Establece esta propiedad en true
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    const SizedBox(height: 30),
+                    ElevatedButton(
+                      onPressed: () {
+                        enviarDatos(ssidController.text, passwordController.text);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color.fromARGB(255, 113, 191, 255),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      child: const Text(
+                        'Conectar WIFI',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> enviarDatos(String ssid, String password) async {
+     Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ControlScreen(esp32Ip: esp32Ip)),
+      );
+    final url = Uri.parse('http://192.168.4.1/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'ssid=$ssid&password=$password',
+    );
+
+    if (response.statusCode == 200) {
+      if (!mounted) return;
+      print('Datos enviados exitosamente!');
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ControlScreen(esp32Ip: esp32Ip)),
+      );
+    } else {
+      print('Error al enviar datos: ${response.statusCode}');
+    }
+  }
+}
