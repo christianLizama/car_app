@@ -4,10 +4,10 @@ import 'package:car_app/Views/car_control_page.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 class WiFiScreen extends StatefulWidget {
-  const WiFiScreen({super.key});
+  const WiFiScreen({Key? key});
 
   @override
-  createState() => _WiFiScreenState();
+  _WiFiScreenState createState() => _WiFiScreenState();
 }
 
 class _WiFiScreenState extends State<WiFiScreen> {
@@ -43,7 +43,7 @@ class _WiFiScreenState extends State<WiFiScreen> {
             ),
           ),
           Container(
-            color: Colors.black.withOpacity(0.6), // Fondo oscuro con opacidad
+            color: Colors.black.withOpacity(0.8), // Fondo oscuro con opacidad
             width: double.infinity,
             height: double.infinity,
             child: Center(
@@ -68,18 +68,20 @@ class _WiFiScreenState extends State<WiFiScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const TextField(
-                      decoration: InputDecoration(
+                    TextField(
+                      controller: ssidController,
+                      decoration: const InputDecoration(
                         labelText: 'Nombre de la red (SSID)',
                         prefixIcon:
                             Icon(Icons.network_wifi, color: Colors.white),
                         labelStyle: TextStyle(color: Colors.white),
                       ),
                       obscureText: false,
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                     ),
                     const SizedBox(height: 20),
                     TextField(
+                      controller: passwordController,
                       decoration: InputDecoration(
                         labelText: 'Contraseña',
                         prefixIcon: const Icon(Icons.lock, color: Colors.white),
@@ -100,13 +102,14 @@ class _WiFiScreenState extends State<WiFiScreen> {
                           },
                         ),
                       ),
-                      obscureText: !_passwordVisible, // Establece esta propiedad en true
+                      obscureText: !_passwordVisible,
                       style: const TextStyle(color: Colors.white),
                     ),
                     const SizedBox(height: 30),
                     ElevatedButton(
                       onPressed: () {
-                        enviarDatos(ssidController.text, passwordController.text);
+                        enviarDatos(
+                            ssidController.text, passwordController.text);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
@@ -133,20 +136,15 @@ class _WiFiScreenState extends State<WiFiScreen> {
   }
 
   Future<void> enviarDatos(String ssid, String password) async {
-     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => ControlScreen(esp32Ip: esp32Ip)),
-      );
+    
     final url = Uri.parse('http://192.168.4.1/');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: 'ssid=$ssid&password=$password',
     );
-
+    if (!mounted) return;
     if (response.statusCode == 200) {
-      if (!mounted) return;
       print('Datos enviados exitosamente!');
       Navigator.push(
         context,
@@ -154,6 +152,25 @@ class _WiFiScreenState extends State<WiFiScreen> {
             builder: (context) => ControlScreen(esp32Ip: esp32Ip)),
       );
     } else {
+      // Mostrar diálogo de error
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Error'),
+            content: Text(
+                'Hubo un error al enviar los datos. Código de estado: ${response.statusCode}'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Aceptar'),
+              ),
+            ],
+          );
+        },
+      );
       print('Error al enviar datos: ${response.statusCode}');
     }
   }

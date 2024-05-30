@@ -13,7 +13,8 @@ class ControlScreen extends StatefulWidget {
 
 class _ControlScreenState extends State<ControlScreen> {
   Future<void> enviarComando(String action) async {
-    final url = Uri.parse('http://${widget.esp32Ip}/move'); // Reemplaza con la IP de tu ESP32
+    final url = Uri.parse(
+        'http://${widget.esp32Ip}/move'); // Reemplaza con la IP de tu ESP32
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -58,15 +59,15 @@ class _ControlScreenState extends State<ControlScreen> {
           children: <Widget>[
             const DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'Menú',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
+                image: DecorationImage(
+                  image: AssetImage(
+                      'assets/foto2.webp'), // Ruta de la imagen
+                  fit: BoxFit
+                      .cover,
                 ),
               ),
+              child:
+                  null, // Puedes omitir child si solo quieres la imagen de fondo
             ),
             ListTile(
               leading: const Icon(Icons.wifi),
@@ -175,7 +176,8 @@ class _ControlScreenState extends State<ControlScreen> {
                 alignment: Alignment.center,
                 child: const Text(
                   "Stop",
-                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                  style:
+                      TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -186,7 +188,7 @@ class _ControlScreenState extends State<ControlScreen> {
         backgroundColor: Colors.green,
         onPressed: () {
           // enviarComando('light');
-          print('Encender/Apagar luz'); 
+          print('Encender/Apagar luz');
         },
         child: const Icon(Icons.lightbulb_outline),
       ),
