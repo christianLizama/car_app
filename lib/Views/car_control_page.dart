@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:car_app/Views/wifi_connect_page.dart';
+import 'package:car_app/Views/car_procontrol_page.dart';
+
 
 class ControlScreen extends StatefulWidget {
   final String esp32Ip;
@@ -95,6 +97,16 @@ class _ControlScreenState extends State<ControlScreen> {
               onTap: () {
                 // Acción para la opción 3
                 Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.exit_to_app),
+              title: const Text('Control Pro'),
+              onTap: () {
+                // Acción para la opción 4
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return ProControlScreen(esp32Ip: widget.esp32Ip);
+                }));
               },
             ),
           ],

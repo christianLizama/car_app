@@ -4,10 +4,11 @@ import 'package:car_app/Views/car_control_page.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 class WiFiScreen extends StatefulWidget {
-  const WiFiScreen({Key? key});
+  const WiFiScreen({super.key});
+
 
   @override
-  _WiFiScreenState createState() => _WiFiScreenState();
+  createState() => _WiFiScreenState();
 }
 
 class _WiFiScreenState extends State<WiFiScreen> {
@@ -144,6 +145,7 @@ class _WiFiScreenState extends State<WiFiScreen> {
       body: 'ssid=$ssid&password=$password',
     );
     if (!mounted) return;
+
     if (response.statusCode == 200) {
       print('Datos enviados exitosamente!');
       Navigator.push(
