@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
+import 'package:http/http.dart' as http;
 
 class ProControlScreen extends StatefulWidget {
   final String esp32Ip;
@@ -17,6 +18,42 @@ class _ProControlScreenState extends State<ProControlScreen> {
     setState(() {
       isLightOn = !isLightOn;
     });
+  }
+
+  Future<void> enviarComando(String action) async {
+    final url = Uri.parse(
+        'http://${widget.esp32Ip}/move'); // Reemplaza con la IP de tu ESP32
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'action=$action',
+    );
+
+    if (response.statusCode == 200) {
+      print('Comando enviado exitosamente!');
+    } else {
+      print('Error al enviar comando: ${response.statusCode}');
+    }
+  }
+
+  void _onJoystickMoved(StickDragDetails details) {
+    if (details.x == 0 && details.y == 0) {
+      enviarComando('stop');
+    } else {
+      if (details.x.abs() > details.y.abs()) {
+        if (details.x > 0) {
+          enviarComando('right');
+        } else {
+          enviarComando('left');
+        }
+      } else {
+        if (details.y > 0) {
+          enviarComando('forward');
+        } else {
+          enviarComando('backward');
+        }
+      }
+    }
   }
 
   @override
@@ -75,7 +112,7 @@ class _ProControlScreenState extends State<ProControlScreen> {
                   color: const Color.fromARGB(255, 183, 179, 179),
                 ),
               ),
-              listener: (StickDragDetails details) {},
+              listener: _onJoystickMoved,
             ),
           ),
           // Botón verde en la esquina inferior derecha

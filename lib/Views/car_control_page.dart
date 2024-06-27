@@ -135,7 +135,7 @@ class _ControlScreenState extends State<ControlScreen> {
               height: 50,
               child: GestureDetector(
                 onTap: () {
-                  enviarComando('forward');
+                  enviarComando('backward');
                 },
                 child: Container(color: Colors.transparent),
               ),
@@ -147,7 +147,7 @@ class _ControlScreenState extends State<ControlScreen> {
               height: 50,
               child: GestureDetector(
                 onTap: () {
-                  enviarComando('backward');
+                  enviarComando('forward');
                 },
                 child: Container(color: Colors.transparent),
               ),
