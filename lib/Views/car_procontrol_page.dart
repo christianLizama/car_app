@@ -17,6 +17,8 @@ class ProControlScreen extends StatefulWidget {
 
 class _ProControlScreenState extends State<ProControlScreen> {
   bool isLightOn = false;
+  bool isLeftPressed = false;
+  bool isRightPressed = false;
 
   void toggleLight() {
     setState(() {
@@ -41,30 +43,34 @@ class _ProControlScreenState extends State<ProControlScreen> {
   }
 
   void _onJoystickMoved(StickDragDetails details) {
-    if (details.x == 0 && details.y == 0) {
+    const double threshold = 0.5; // Define un umbral de tolerancia
+
+    if (details.x.abs() < threshold && details.y.abs() < threshold) {
       enviarComando('stop');
     } else {
-      if (details.x.abs() > details.y.abs()) {
-        if (details.x > 0) {
-          enviarComando('right');
+      // Rangos para las posiciones diagonales y direcciones principales
+      if (details.y < -threshold) {
+        if (details.x > threshold) {
+          enviarComando('forward_right');
+        } else if (details.x < -threshold) {
+          enviarComando('forward_left');
         } else {
-          enviarComando('left');
-        }
-      } else {
-        if (details.y > 0) {
           enviarComando('forward');
+        }
+      } else if (details.y > threshold) {
+        if (details.x > threshold) {
+          enviarComando('backward_right');
+        } else if (details.x < -threshold) {
+          enviarComando('backward_left');
         } else {
           enviarComando('backward');
         }
-      }
-      if (details.x > 0 && details.y < 0) {
-        enviarComando('forward_right');
-      } else if (details.x < 0 && details.y < 0) {
-        enviarComando('forward_left');
-      } else if (details.x > 0 && details.y > 0) {
-        enviarComando('backward_right');
-      } else if (details.x < 0 && details.y > 0) {
-        enviarComando('backward_left');
+      } else {
+        if (details.x > threshold) {
+          enviarComando('right');
+        } else if (details.x < -threshold) {
+          enviarComando('left');
+        }
       }
     }
   }
@@ -192,9 +198,7 @@ class _ProControlScreenState extends State<ProControlScreen> {
                       ),
                       child: IconButton(
                         icon: Icon(
-                          isLightOn
-                              ? Icons.lightbulb
-                              : Icons.lightbulb_outline,
+                          isLightOn ? Icons.lightbulb : Icons.lightbulb_outline,
                         ),
                         onPressed: toggleLight,
                         iconSize: 30.0,
@@ -206,18 +210,26 @@ class _ProControlScreenState extends State<ProControlScreen> {
                       children: [
                         GestureDetector(
                           onLongPressStart: (_) {
+                            setState(() {
+                              isLeftPressed = true;
+                            });
                             _buttonPressed = true;
                             _sendCommandWhilePressed('left');
                           },
                           onLongPressEnd: (_) {
+                            setState(() {
+                              isLeftPressed = false;
+                            });
                             _buttonPressed = false;
                             enviarComando('stop');
                           },
-                          child: Container(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 100),
                             width: 60.0,
                             height: 60.0,
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
+                            decoration: BoxDecoration(
+                              color:
+                                  isLeftPressed ? Colors.red[700] : Colors.red,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -229,18 +241,27 @@ class _ProControlScreenState extends State<ProControlScreen> {
                         const SizedBox(width: 16.0),
                         GestureDetector(
                           onLongPressStart: (_) {
+                            setState(() {
+                              isRightPressed = true;
+                            });
                             _buttonPressed = true;
                             _sendCommandWhilePressed('right');
                           },
                           onLongPressEnd: (_) {
+                            setState(() {
+                              isRightPressed = false;
+                            });
                             _buttonPressed = false;
                             enviarComando('stop');
                           },
-                          child: Container(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 100),
                             width: 60.0,
                             height: 60.0,
-                            decoration: const BoxDecoration(
-                              color: Colors.blue,
+                            decoration: BoxDecoration(
+                              color: isRightPressed
+                                  ? Colors.blue[700]
+                                  : Colors.blue,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
