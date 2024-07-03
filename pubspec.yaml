@@ -12,7 +12,9 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_joystick: ^0.2.0
+  flutter_screenutil: ^5.9.3
   http: ^1.2.1
+  web_socket_channel: ^3.0.0
   wifi_iot: ^0.3.19
 
 dev_dependencies:

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:car_app/Views/wifi_connect_page.dart';
 import 'package:car_app/Views/car_procontrol_page.dart';
-
+import 'package:car_app/Views/help_page.dart';
 
 class ControlScreen extends StatefulWidget {
   final String esp32Ip;
@@ -14,6 +13,14 @@ class ControlScreen extends StatefulWidget {
 }
 
 class _ControlScreenState extends State<ControlScreen> {
+  bool isLightOn = false;
+  void toggleLight() {
+    setState(() {
+      isLightOn = !isLightOn;
+      enviarComando(isLightOn ? 'light_on' : 'light_off');
+    });
+  }
+
   Future<void> enviarComando(String action) async {
     final url = Uri.parse(
         'http://${widget.esp32Ip}/move'); // Reemplaza con la IP de tu ESP32
@@ -62,45 +69,25 @@ class _ControlScreenState extends State<ControlScreen> {
             const DrawerHeader(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(
-                      'assets/foto2.webp'), // Ruta de la imagen
-                  fit: BoxFit
-                      .cover,
+                  image: AssetImage('assets/foto2.webp'), // Ruta de la imagen
+                  fit: BoxFit.cover,
                 ),
               ),
               child:
                   null, // Puedes omitir child si solo quieres la imagen de fondo
             ),
             ListTile(
-              leading: const Icon(Icons.wifi),
-              title: const Text('Configurar Wifi'),
-              onTap: () {
-                // Acción para la opción 1
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const WiFiScreen()),
-                  (route) => false,
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Configuraciones'),
-              onTap: () {
-                // Acción para la opción 2
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
               leading: const Icon(Icons.info),
               title: const Text('Ayuda'),
               onTap: () {
                 // Acción para la opción 3
-                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return const HelpView();
+                }));
               },
             ),
             ListTile(
-              leading: const Icon(Icons.exit_to_app),
+              leading: const Icon(Icons.videogame_asset),
               title: const Text('Control Pro'),
               onTap: () {
                 // Acción para la opción 4
@@ -135,7 +122,7 @@ class _ControlScreenState extends State<ControlScreen> {
               height: 50,
               child: GestureDetector(
                 onTap: () {
-                  enviarComando('backward');
+                  enviarComando('forward');
                 },
                 child: Container(color: Colors.transparent),
               ),
@@ -147,7 +134,7 @@ class _ControlScreenState extends State<ControlScreen> {
               height: 50,
               child: GestureDetector(
                 onTap: () {
-                  enviarComando('forward');
+                  enviarComando('backward');
                 },
                 child: Container(color: Colors.transparent),
               ),
@@ -199,10 +186,11 @@ class _ControlScreenState extends State<ControlScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.green,
         onPressed: () {
-          // enviarComando('light');
-          print('Encender/Apagar luz');
+          toggleLight();
         },
-        child: const Icon(Icons.lightbulb_outline),
+        child: Icon(
+          isLightOn ? Icons.lightbulb : Icons.lightbulb_outline,
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
